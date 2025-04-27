@@ -140,14 +140,29 @@ func saveEventToDB(topic, value, timestamp string) {
 	}
 	fmt.Println("Failed to save to database after retries")
 }
+
+var smsSuccessCount int
+var smsFailureCount int
+
 func sendSMS(number, message string) {
 	cmd := exec.Command("gammu-smsd-inject", "TEXT", number, "-text", message)
-	output, err := cmd.CombinedOutput() // Capture stdout and stderr
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
+		smsFailureCount++
 		return
 	}
-	fmt.Println("SMS sent successfully")
+
+	if strings.Contains(string(output), "Message reference") {
+		fmt.Println("SMS sent successfully")
+		smsSuccessCount++
+	} else {
+		fmt.Printf("Failed to send SMS. Output: %s\n", string(output))
+		smsFailureCount++
+	}
+
+	// Log the counts (can be saved to a file or database)
+	fmt.Printf("SMS Sent: Success %d, Failure %d\n", smsSuccessCount, smsFailureCount)
 }
 
 func handleTemperature(payload, timestamp string) {
