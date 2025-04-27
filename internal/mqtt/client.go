@@ -195,6 +195,7 @@ func handleDoor(payload, timestamp string) {
 		fmt.Println("Invalid door sensor data:", payload)
 		return
 	}
+	fmt.Println("tel :", Phone)
 	saveEventToDB(TopicDoor, strconv.Itoa(door), timestamp)
 
 	if door == 1 {
