@@ -140,13 +140,14 @@ func saveEventToDB(topic, value, timestamp string) {
 	}
 	fmt.Println("Failed to save to database after retries")
 }
-
 func sendSMS(number, message string) {
 	cmd := exec.Command("gammu-smsd-inject", "TEXT", number, "-text", message)
-	err := cmd.Run()
+	output, err := cmd.CombinedOutput() // Capture stdout and stderr
 	if err != nil {
-		fmt.Println("Failed to send SMS:", err)
+		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
+		return
 	}
+	fmt.Println("SMS sent successfully")
 }
 
 func handleTemperature(payload, timestamp string) {
