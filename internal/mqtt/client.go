@@ -153,6 +153,8 @@ func sendSMS(number, message string) {
 		return
 	}
 
+	fmt.Printf("Gammu Output: %s\n", string(output))
+
 	if strings.Contains(string(output), "Message reference") {
 		fmt.Println("SMS sent successfully.")
 		smsSuccessCount++
