@@ -80,7 +80,6 @@ func Start(broker string) {
 		break
 	}
 }
-
 func messageHandler(client mqtt.Client, msg mqtt.Message) {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
@@ -103,12 +102,18 @@ func messageHandler(client mqtt.Client, msg mqtt.Message) {
 		return
 	}
 
-	select {
-	case storage.BroadcastCh <- string(jsonMessage):
-	default:
-		fmt.Println("Broadcast channel full, dropping message")
+	// Retry logic: Try sending the message multiple times before dropping
+	for retries := 0; retries < 3; retries++ {
+		select {
+		case storage.BroadcastCh <- string(jsonMessage):
+			return
+		default:
+			fmt.Println("Broadcast channel full, retrying...")
+			time.Sleep(1 * time.Second) // Wait before retrying
+		}
 	}
 
+	fmt.Println("Broadcast channel full, dropping message after retries")
 	checkForRisk(topic, payload, timestamp)
 }
 
