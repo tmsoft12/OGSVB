@@ -29,13 +29,17 @@ func WebSocketHandler(c *websocket.Conn) {
 	storage.Mutex.Unlock()
 
 	for {
-		select {
-		case message := <-storage.BroadcastCh:
-			err := c.WriteMessage(websocket.TextMessage, []byte(message))
-			if err != nil {
-				log.Println("WebSocket broadcast error:", err)
-				return
-			}
+		_, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("WebSocket message read error:", err)
+			return
+		}
+
+		// Mesajı işler ve gönderebilirsiniz
+		err = c.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			log.Println("WebSocket message send error:", err)
+			return
 		}
 	}
 }

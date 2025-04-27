@@ -50,5 +50,8 @@ func SaveEventToDB(topic, value, timestamp string) error {
 	fmt.Println("Database connection established, data being saved...")
 
 	log.Printf("Data saved: Topic: %s, Value: %s, Timestamp: %s\n", topic, value, timestamp)
+
+	message := fmt.Sprintf("Topic: %s, Value: %s, Timestamp: %s", topic, value, timestamp)
+	BroadcastCh <- message
 	return nil
 }
