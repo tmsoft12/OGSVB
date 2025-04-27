@@ -145,28 +145,22 @@ var smsSuccessCount int
 var smsFailureCount int
 
 func sendSMS(number, message string) {
-	// Gammu komutunun doğru şekilde yapılandırılması
-	cmd := exec.Command("gammu", "--device", "/dev/ttyUSB3", "--sendsms", "TEXT", number, "-text", message)
+	cmd := exec.Command("gammu", "sendsms", "TEXT", number, "-text", message)
 	output, err := cmd.CombinedOutput()
-
 	if err != nil {
-		// Eğer bir hata olursa, hata mesajını yazdır
-		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
-		smsFailureCount++ // Başarısız SMS sayısını artır
+		fmt.Printf("SMS sending error: %v, Output: %s\n", err, string(output))
+		smsFailureCount++
 		return
 	}
 
-	// Eğer mesaj gönderildiyse, "Message reference" kelimesi çıktıda olmalı
 	if strings.Contains(string(output), "Message reference") {
-		fmt.Println("SMS sent successfully")
-		smsSuccessCount++ // Başarılı SMS sayısını artır
+		fmt.Println("SMS sent successfully.")
+		smsSuccessCount++
 	} else {
-		// Eğer mesaj gönderilemediyse, çıktıyı yazdır
-		fmt.Printf("Failed to send SMS. Output: %s\n", string(output))
-		smsFailureCount++ // Başarısız SMS sayısını artır
+		fmt.Printf("SMS sending failed. Output: %s\n", string(output))
+		smsFailureCount++
 	}
 
-	// Başarı ve başarısızlık sayılarını yazdır
 	fmt.Printf("SMS Sent: Success %d, Failure %d\n", smsSuccessCount, smsFailureCount)
 }
 
