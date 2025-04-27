@@ -145,7 +145,7 @@ var smsSuccessCount int
 var smsFailureCount int
 
 func sendSMS(number, message string) {
-	cmd := exec.Command("gammu-smsd-inject", "TEXT", number, "-text", message)
+	cmd := exec.Command("/usr/bin/gammu-smsd-inject", "TEXT", number, "-text", message)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
