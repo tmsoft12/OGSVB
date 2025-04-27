@@ -13,8 +13,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-var Phone = os.Getenv("PHONE")
-
 const (
 	TopicDoor        = "topic/door"
 	TopicFire        = "topic/fire"
@@ -183,9 +181,9 @@ func handleFire(payload, timestamp string) {
 	saveEventToDB(TopicFire, strconv.Itoa(fire), timestamp)
 
 	if fire == 1 {
-		sendSMS(Phone, "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
+		sendSMS("+99362805208", "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
 	} else {
-		sendSMS(Phone, "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
+		sendSMS("+99362805208", "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
 	}
 }
 
@@ -195,13 +193,12 @@ func handleDoor(payload, timestamp string) {
 		fmt.Println("Invalid door sensor data:", payload)
 		return
 	}
-	fmt.Println("tel :", Phone)
 	saveEventToDB(TopicDoor, strconv.Itoa(door), timestamp)
 
 	if door == 1 {
-		sendSMS(Phone, "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
+		sendSMS("+99362805208", "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
 	} else {
-		sendSMS(Phone, "✅ Server otagynyň gapysy ýapyldy.")
+		sendSMS("+99362805208", "✅ Server otagynyň gapysy ýapyldy.")
 	}
 }
 
@@ -214,6 +211,6 @@ func handleMotion(payload, timestamp string) {
 	saveEventToDB(TopicMotion, strconv.Itoa(motion), timestamp)
 
 	if motion == 1 {
-		sendSMS(Phone, "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
+		sendSMS("+99362805208", "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
 	}
 }
