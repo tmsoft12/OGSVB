@@ -13,7 +13,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-var Phone = os.Getenv("PHONE")
+var Phone = "+99364936679"
 
 const (
 	TopicDoor        = "topic/door"
@@ -145,23 +145,28 @@ var smsSuccessCount int
 var smsFailureCount int
 
 func sendSMS(number, message string) {
-	cmd := exec.Command("gammu", "--device", "/dev/ttyUSB0", "--sendsms", "TEXT", number, "-text", message)
+	// Gammu komutunun doğru şekilde yapılandırılması
+	cmd := exec.Command("gammu", "--device", "/dev/ttyUSB3", "--sendsms", "TEXT", number, "-text", message)
 	output, err := cmd.CombinedOutput()
+
 	if err != nil {
+		// Eğer bir hata olursa, hata mesajını yazdır
 		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
-		smsFailureCount++
+		smsFailureCount++ // Başarısız SMS sayısını artır
 		return
 	}
 
+	// Eğer mesaj gönderildiyse, "Message reference" kelimesi çıktıda olmalı
 	if strings.Contains(string(output), "Message reference") {
 		fmt.Println("SMS sent successfully")
-		smsSuccessCount++
+		smsSuccessCount++ // Başarılı SMS sayısını artır
 	} else {
+		// Eğer mesaj gönderilemediyse, çıktıyı yazdır
 		fmt.Printf("Failed to send SMS. Output: %s\n", string(output))
-		smsFailureCount++
+		smsFailureCount++ // Başarısız SMS sayısını artır
 	}
 
-	// Log the counts (can be saved to a file or database)
+	// Başarı ve başarısızlık sayılarını yazdır
 	fmt.Printf("SMS Sent: Success %d, Failure %d\n", smsSuccessCount, smsFailureCount)
 }
 
