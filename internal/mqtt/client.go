@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
+
+var Phone = os.Getenv("PHONE")
 
 const (
 	TopicDoor        = "topic/door"
@@ -138,6 +141,14 @@ func saveEventToDB(topic, value, timestamp string) {
 	fmt.Println("Failed to save to database after retries")
 }
 
+func sendSMS(number, message string) {
+	cmd := exec.Command("gammu-smsd-inject", "TEXT", number, "-text", message)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Failed to send SMS:", err)
+	}
+}
+
 func handleTemperature(payload, timestamp string) {
 	temp, err := strconv.ParseFloat(payload, 64)
 	if err != nil || temp < -50 || temp > 100 {
@@ -170,6 +181,12 @@ func handleFire(payload, timestamp string) {
 		return
 	}
 	saveEventToDB(TopicFire, strconv.Itoa(fire), timestamp)
+
+	if fire == 1 {
+		sendSMS(Phone, "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
+	} else {
+		sendSMS(Phone, "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
+	}
 }
 
 func handleDoor(payload, timestamp string) {
@@ -179,6 +196,12 @@ func handleDoor(payload, timestamp string) {
 		return
 	}
 	saveEventToDB(TopicDoor, strconv.Itoa(door), timestamp)
+
+	if door == 1 {
+		sendSMS(Phone, "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
+	} else {
+		sendSMS(Phone, "✅ Server otagynyň gapysy ýapyldy.")
+	}
 }
 
 func handleMotion(payload, timestamp string) {
@@ -188,4 +211,8 @@ func handleMotion(payload, timestamp string) {
 		return
 	}
 	saveEventToDB(TopicMotion, strconv.Itoa(motion), timestamp)
+
+	if motion == 1 {
+		sendSMS(Phone, "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
+	}
 }

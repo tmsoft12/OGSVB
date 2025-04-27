@@ -23,6 +23,5 @@ func main() {
 	app := fiber.New()
 
 	api.SetupRoutes(app)
-
 	log.Fatal(app.Listen(cfg.ServerPort))
 }
