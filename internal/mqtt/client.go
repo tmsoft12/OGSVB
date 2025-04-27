@@ -198,9 +198,9 @@ func handleFire(payload, timestamp string) {
 	saveEventToDB(TopicFire, strconv.Itoa(fire), timestamp)
 
 	if fire == 1 {
-		sendSMS(Phone, "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
+		sendSMS(Phone, "Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
 	} else {
-		sendSMS(Phone, "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
+		sendSMS(Phone, "Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
 	}
 }
 
@@ -213,9 +213,9 @@ func handleDoor(payload, timestamp string) {
 	saveEventToDB(TopicDoor, strconv.Itoa(door), timestamp)
 
 	if door == 1 {
-		sendSMS(Phone, "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
+		sendSMS(Phone, "Server otagynyň gapysy açyldy! Gözegçilik ediň.")
 	} else {
-		sendSMS(Phone, "✅ Server otagynyň gapysy ýapyldy.")
+		sendSMS(Phone, "Server otagynyň gapysy ýapyldy.")
 	}
 }
 
@@ -228,6 +228,6 @@ func handleMotion(payload, timestamp string) {
 	saveEventToDB(TopicMotion, strconv.Itoa(motion), timestamp)
 
 	if motion == 1 {
-		sendSMS(Phone, "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
+		sendSMS(Phone, "Server otagynda hereket bar! Gözegçilik ediň.")
 	}
 }
