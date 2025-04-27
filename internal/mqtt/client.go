@@ -145,7 +145,7 @@ var smsSuccessCount int
 var smsFailureCount int
 
 func sendSMS(number, message string) {
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(`echo "%s" | gammu --sendsms TEXT %s`, message, number))
+	cmd := exec.Command("gammu", "--device", "/dev/ttyUSB0", "--sendsms", "TEXT", number, "-text", message)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Failed to send SMS: %v, Output: %s\n", err, string(output))
