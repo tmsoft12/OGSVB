@@ -13,6 +13,8 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+var Phone = os.Getenv("PHONE")
+
 const (
 	TopicDoor        = "topic/door"
 	TopicFire        = "topic/fire"
@@ -80,6 +82,7 @@ func Start(broker string) {
 		break
 	}
 }
+
 func messageHandler(client mqtt.Client, msg mqtt.Message) {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
@@ -102,18 +105,12 @@ func messageHandler(client mqtt.Client, msg mqtt.Message) {
 		return
 	}
 
-	// Retry logic: Try sending the message multiple times before dropping
-	for retries := 0; retries < 3; retries++ {
-		select {
-		case storage.BroadcastCh <- string(jsonMessage):
-			return
-		default:
-			fmt.Println("Broadcast channel full, retrying...")
-			time.Sleep(1 * time.Second) // Wait before retrying
-		}
+	select {
+	case storage.BroadcastCh <- string(jsonMessage):
+	default:
+		fmt.Println("Broadcast channel full, dropping message")
 	}
 
-	fmt.Println("Broadcast channel full, dropping message after retries")
 	checkForRisk(topic, payload, timestamp)
 }
 
@@ -186,9 +183,9 @@ func handleFire(payload, timestamp string) {
 	saveEventToDB(TopicFire, strconv.Itoa(fire), timestamp)
 
 	if fire == 1 {
-		sendSMS("+99362805208", "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
+		sendSMS(Phone, "🚨 Server otagynda ýangyn ýüze çykdy! Gözegçilik ediň.")
 	} else {
-		sendSMS("+99362805208", "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
+		sendSMS(Phone, "✅ Server otagyndaky ýangyn ýagdaýy adaty ýagdaýa geldi.")
 	}
 }
 
@@ -201,9 +198,9 @@ func handleDoor(payload, timestamp string) {
 	saveEventToDB(TopicDoor, strconv.Itoa(door), timestamp)
 
 	if door == 1 {
-		sendSMS("+99362805208", "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
+		sendSMS(Phone, "📢 Server otagynyň gapysy açyldy! Gözegçilik ediň.")
 	} else {
-		sendSMS("+99362805208", "✅ Server otagynyň gapysy ýapyldy.")
+		sendSMS(Phone, "✅ Server otagynyň gapysy ýapyldy.")
 	}
 }
 
@@ -216,6 +213,6 @@ func handleMotion(payload, timestamp string) {
 	saveEventToDB(TopicMotion, strconv.Itoa(motion), timestamp)
 
 	if motion == 1 {
-		sendSMS("+99362805208", "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
+		sendSMS(Phone, "⚠️ Server otagynda hereket bar! Gözegçilik ediň.")
 	}
 }
