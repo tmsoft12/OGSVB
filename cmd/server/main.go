@@ -5,6 +5,7 @@ import (
 	"ServerRoom/internal/config"
 	mqttclient "ServerRoom/internal/mqtt"
 	"ServerRoom/internal/storage"
+	websocketT "ServerRoom/internal/websocket"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,7 +13,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-
+	go websocketT.RunBroadcaster()
 	err := storage.InitDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Database connection error: %v", err)
