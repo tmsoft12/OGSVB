@@ -8,24 +8,24 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-var dbPool *pgxpool.Pool
+var DbPool *pgxpool.Pool
 
 func InitDB(connString string) error {
 	var err error
 
-	dbPool, err = pgxpool.Connect(context.Background(), connString)
+	DbPool, err = pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		return fmt.Errorf("database connection error: %w", err)
 	}
 
-	if err := dbPool.Ping(context.Background()); err != nil {
+	if err := DbPool.Ping(context.Background()); err != nil {
 		return fmt.Errorf("unable to connect to database: %w", err)
 	}
 
 	log.Println("Database connection successful!")
 
 	var test string
-	err = dbPool.QueryRow(context.Background(), "SELECT 'OK'").Scan(&test)
+	err = DbPool.QueryRow(context.Background(), "SELECT 'OK'").Scan(&test)
 	if err != nil || test != "OK" {
 		log.Printf("Database connection verified but unexpected test result. Test value: %s\n", test)
 		return fmt.Errorf("database connection test failed: %v", err)
@@ -37,7 +37,7 @@ func InitDB(connString string) error {
 
 func SaveEventToDB(topic, value, timestamp string) error {
 	query := `INSERT INTO events (topic, value, timestamp) VALUES ($1, $2, $3)`
-	cmdTag, err := dbPool.Exec(context.Background(), query, topic, value, timestamp)
+	cmdTag, err := DbPool.Exec(context.Background(), query, topic, value, timestamp)
 	if err != nil {
 		log.Printf("Data save error: %v\n", err)
 		return fmt.Errorf("data save error: %w", err)
