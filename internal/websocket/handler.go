@@ -27,18 +27,15 @@ func RunBroadcaster() {
 			clientsMu.Lock()
 			clients[client] = true
 			clientsMu.Unlock()
-			log.Println("New client connected, total clients:", len(clients))
 		case client := <-unregister:
 			clientsMu.Lock()
 			delete(clients, client)
 			clientsMu.Unlock()
-			log.Println("Client disconnected, total clients:", len(clients))
 		case message := <-storage.BroadcastCh:
 			clientsMu.Lock()
 			for client := range clients {
 				err := client.Conn.WriteMessage(websocket.TextMessage, []byte(message))
 				if err != nil {
-					log.Println("WebSocket message send error:", err)
 					client.Conn.Close()
 					delete(clients, client)
 				}
@@ -61,12 +58,10 @@ func WebSocketHandler(c *websocket.Conn) {
 	for _, data := range storage.SensorData {
 		jsonData, err := json.Marshal(data)
 		if err != nil {
-			log.Println("Cache JSON marshaling error:", err)
 			continue
 		}
 		err = c.WriteMessage(websocket.TextMessage, jsonData)
 		if err != nil {
-			log.Println("WebSocket initial data send error:", err)
 			storage.Mutex.Unlock()
 			return
 		}
