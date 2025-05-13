@@ -44,6 +44,7 @@ func Register(c *fiber.Ctx) error {
 		"username": user.Username,
 	})
 }
+
 func Login(c *fiber.Ctx) error {
 	var input models.User
 	if err := c.BodyParser(&input); err != nil {
@@ -67,24 +68,22 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	// Token oluşturuluyor
 	token, err := utils.GenerateJWT(input.Username)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Error generating token",
 		})
 	}
-
-	// Token'ı cookie'ye ekliyoruz
 	c.Cookie(&fiber.Cookie{
-		Name:     "token",                        // Cookie adı
-		Value:    token,                          // Token değeri
-		Expires:  time.Now().Add(time.Hour * 24), // Süresi
-		HTTPOnly: true,                           // JS ile erişilemesin
-		Secure:   false,                          // Prod ortamda true yapmalısın
-		Path:     "/",                            // Route başına
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
 	})
 
+	log.Default().Print(token)
 	return c.Status(200).JSON(fiber.Map{
 		"message":  "Login successful",
 		"username": input.Username,

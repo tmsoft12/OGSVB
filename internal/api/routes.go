@@ -16,7 +16,7 @@ func SetupRoutes(app *fiber.App) {
 
 	app.Get("/ws", websocket.New(websocketT.WebSocketHandler))
 	app.Post("/login", controller.Login)
-	app.Post("/register", middleware.Protected(), controller.Register)
+	app.Post("/register", controller.Register)
 	app.Get("/phone", middleware.Protected(), controller.GetPhone)
 	app.Post("/updatePhone", middleware.Protected(), controller.UpdatePhoneNumber)
 	app.Get("/events/topic", middleware.Protected(), controller.GetEventsByTopic)
