@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ServerRoom/controller"
 	websocketT "ServerRoom/internal/websocket"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,4 +14,6 @@ func SetupRoutes(app *fiber.App) {
 	})
 
 	app.Get("/ws", websocket.New(websocketT.WebSocketHandler))
+	app.Post("/login", controller.Login)
+	app.Post("/register", controller.Register)
 }
