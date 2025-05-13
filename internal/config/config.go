@@ -8,8 +8,7 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		MQTTBroker:  "tcp://127.0.0.1:1883",
+		MQTTBroker:  "tcp://192.168.100.220:1883",
 		ServerPort:  ":3000",
-		DatabaseURL: "postgres://admin:secret@127.0.0.1:5432/mydb",
-	}
+		DatabaseURL: "postgres://tmsoft:12@192.168.100.220:5432/server"}
 }

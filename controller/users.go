@@ -4,6 +4,8 @@ import (
 	"ServerRoom/internal/storage"
 	"ServerRoom/models"
 	"ServerRoom/utils"
+	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,6 +20,7 @@ func Register(c *fiber.Ctx) error {
 
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
+
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Internal server error",
 		})
@@ -26,8 +29,12 @@ func Register(c *fiber.Ctx) error {
 
 	query := `INSERT INTO users (username, password) VALUES ($1, $2)`
 	_, err = storage.DbPool.Exec(c.Context(), query, user.Username, user.Password)
+	log.Println(user.ID, user.Username, user.Password)
+
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
+			"user": user.Username,
+
 			"error": "Internal server error",
 		})
 	}
@@ -37,7 +44,6 @@ func Register(c *fiber.Ctx) error {
 		"username": user.Username,
 	})
 }
-
 func Login(c *fiber.Ctx) error {
 	var input models.User
 	if err := c.BodyParser(&input); err != nil {
@@ -60,6 +66,24 @@ func Login(c *fiber.Ctx) error {
 			"error": "Invalid username or password",
 		})
 	}
+
+	// Token oluşturuluyor
+	token, err := utils.GenerateJWT(input.Username)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": "Error generating token",
+		})
+	}
+
+	// Token'ı cookie'ye ekliyoruz
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",                        // Cookie adı
+		Value:    token,                          // Token değeri
+		Expires:  time.Now().Add(time.Hour * 24), // Süresi
+		HTTPOnly: true,                           // JS ile erişilemesin
+		Secure:   false,                          // Prod ortamda true yapmalısın
+		Path:     "/",                            // Route başına
+	})
 
 	return c.Status(200).JSON(fiber.Map{
 		"message":  "Login successful",
